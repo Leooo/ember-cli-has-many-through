@@ -1,7 +1,7 @@
 {
   "name": "ember-cli-has-many-through",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "1.0.0",
+  "description": "A small Addon to forward hasMany of hasMany relationships to the grand-parent.",
   "directories": {
     "doc": "doc",
     "test": "tests"
