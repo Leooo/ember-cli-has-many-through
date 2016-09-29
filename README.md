@@ -1,7 +1,9 @@
 # Ember-cli-has-many-through
- 
+
+A small Addon to forward hasMany of hasMany relationships to the grand-parent.
+
 Given an Ember-Data `parent` model with a hasMany `children` relationship on a `child` model that itself has a hasMany `childrenOfChild` relationship,
-then you can use the `hasManyThrough` computed property provided by this addOn to concatenate all the `childrenOfChild` of `child` models
+then you can use the `hasManyThrough` computed property provided by this Addon to concatenate all the `childrenOfChild` of `child` models
 into a single `childrenOfChild` property on the `parent` model.
 
 ``````javascript
@@ -52,7 +54,7 @@ See the `test/dummy app` for further examples.
 
 ## Running Tests
 
-* `npm test` (Runs `ember try:testall` to test your addon against multiple Ember versions)
+* `npm test` (Runs `ember try:testall` to test your Addon against multiple Ember versions)
 * `ember test`
 * `ember test --server`
 
