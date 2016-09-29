@@ -4,7 +4,7 @@ Given an Ember-Data `parent` model with a hasMany `children` relationship on a `
 then you can use the `hasManyThrough` computed property provided by this addOn to concatenate all the `childrenofchild` of `child` models
 into a single `childrenofchild` property on the `parent` model.
 
-``````
+``````javascript
 // models/parent.js
 import DS from 'ember-data';
 import hasManyThrough from 'dummy/macros/has-many-through';
@@ -18,9 +18,9 @@ export default DS.Model.extend({
   // this also works if the property on the 'child' model is an array (not a promise)
   childrenOfChildArray: hasManyThrough('children')
 });
-`````
-
 ``````
+
+``````javascript
 // models/child.js
 import DS from 'ember-data';
 
@@ -28,14 +28,14 @@ export default DS.Model.extend({
   childrenOfChild: DS.hasMany('childOfChild'),
   childrenOfChildArray: []
 });
-`````
-
 ``````
+
+``````javascript
 // models/child-of-child.js
 import DS from 'ember-data';
 
 export default DS.Model.extend({});
-`````
+``````
 
 See the `test/dummy app` for further examples.
 
