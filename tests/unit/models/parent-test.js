@@ -1,0 +1,155 @@
+import {
+  moduleForModel,
+  test
+} from 'ember-qunit';
+import Ember from 'ember';
+
+moduleForModel('parent', 'Unit | Model | parent', {
+  needs: [
+    'model:child',
+    'model:child-of-child'
+  ]
+});
+
+test('it exists', function (assert) {
+  var model = this.subject();
+  assert.ok(!!model);
+});
+
+test('hasManyThrough on hasMany of one hasMany', function (assert) {
+  let store = this.store(),
+    childOfChild1, childOfChild2, child, parent;
+  parent = this.subject();
+  Ember.run(() => {
+    childOfChild1 = store.createRecord('child-of-child');
+    childOfChild2 = store.createRecord('child-of-child');
+    child = store.createRecord('child');
+    parent.get('children').then((children) => {
+      child.get('childrenOfChild').then((childrenOfChild) => {
+        let arrayOfChildOfChild = [childOfChild1, childOfChild2];
+
+        childrenOfChild.pushObjects(arrayOfChildOfChild);
+        child.get('childrenOfChildArray').pushObjects(arrayOfChildOfChild);
+        children.pushObject(child);
+        parent.get('childrenOfChild').then((res) => {
+          assert.deepEqual(
+            res,
+            arrayOfChildOfChild,
+            'the hasManyThrough property forwards the hasMany of one hasMany child'
+          );
+          assert.deepEqual(
+            parent.get('childrenOfChild.content'),
+            arrayOfChildOfChild,
+            'the hasManyThrough property is a promiseArray'
+          );
+        });
+        parent.get('childrenOfChildArray').then((res) => {
+          assert.deepEqual(
+            res,
+            arrayOfChildOfChild,
+            'the hasManyThrough property forwards the CP array of one hasMany child'
+          );
+          assert.deepEqual(
+            parent.get('childrenOfChildArray.content'),
+            arrayOfChildOfChild,
+            'the hasManyThrough property is a promiseArray'
+          );
+        });
+        parent.get('childrenOfChildren').then((res) => {
+          assert.deepEqual(
+            res,
+            arrayOfChildOfChild,
+            'the hasManyThrough property can be aliased to another property name'
+          );
+        });
+      });
+    });
+  });
+});
+
+test('hasManyThrough on hasMany of several hasMany', function (assert) {
+  let store = this.store(),
+    childOfChild1, childOfChild2, childOfChild3 , child1, child2, parent;
+  parent = this.subject();
+  Ember.run(() => {
+    childOfChild1 = store.createRecord('child-of-child');
+    childOfChild2 = store.createRecord('child-of-child');
+    childOfChild3 = store.createRecord('child-of-child');
+    child1 = store.createRecord('child');
+    child2 = store.createRecord('child');
+    let arrayOfChildOfChild = [childOfChild1, childOfChild2, childOfChild3];
+    parent.get('children').then((children) => {
+      let prom = [
+        child1.get('childrenOfChild').then((childrenOfChild) => {
+          childrenOfChild.pushObjects([childOfChild1, childOfChild2]);
+          child1.get('childrenOfChildArray').pushObjects([childOfChild1, childOfChild2]);
+        }),
+        child2.get('childrenOfChild').then((childrenOfChild) => {
+          childrenOfChild.pushObjects([childOfChild2, childOfChild3]);
+          child2.get('childrenOfChildArray').pushObjects([childOfChild2, childOfChild3]);
+        })
+      ];
+      return Ember.RSVP.all(prom).then(() => {
+        children.pushObjects([child1, child2]);
+        return parent.get('childrenOfChild');
+      });
+    }).then((res) => {
+      assert.deepEqual(
+        res,
+        arrayOfChildOfChild,
+        'the hasManyThrough property forwards the hasMany of two hasMany children'
+      );
+      assert.equal(
+        res.get('length'),
+        3,
+        'the hasManyThrough property removes duplicates from the final array'
+      );
+      return parent.get('childrenOfChildArray');
+    }).then((res) => {
+      assert.deepEqual(
+        res,
+        arrayOfChildOfChild,
+        'the hasManyThrough property forwards the CP array of two hasMany children'
+      );
+      assert.equal(
+        res.get('length'),
+        3,
+        'the hasManyThrough property removes duplicates from the final array'
+      );
+    }).then(() => {
+      return childOfChild1.destroyRecord();
+    }).then(() => {
+      return parent.get('childrenOfChild');
+    }).then(() => {
+      assert.deepEqual(
+        parent.get('childrenOfChild.content'),
+        [childOfChild2, childOfChild3],
+        'the hasManyThrough property removes destroyed records'
+      )
+      return parent.get('childrenOfChildArray');
+    }).then(() => {
+      assert.deepEqual(
+        parent.get('childrenOfChildArray.content'),
+        [childOfChild2, childOfChild3],
+        'the hasManyThrough property removes destroyed records'
+      )
+    }).then(() => {
+      return childOfChild2.destroyRecord();
+    }).then(() => {
+      return parent.get('childrenOfChild');
+    }).then(() => {
+      assert.deepEqual(
+        parent.get('childrenOfChild.content'),
+        [childOfChild3],
+        'the hasManyThrough property removes destroyed records taking into account properly duplicates'
+      )
+      return parent.get('childrenOfChildArray');
+    }).then(() => {
+      assert.deepEqual(
+        parent.get('childrenOfChildArray.content'),
+        [childOfChild3],
+        'the hasManyThrough property removes destroyed records'
+      )
+    });
+  });
+});
