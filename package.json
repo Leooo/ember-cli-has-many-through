@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-has-many-through",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A small Addon to forward hasMany of hasMany relationships to the grand-parent.",
   "directories": {
     "doc": "doc",
