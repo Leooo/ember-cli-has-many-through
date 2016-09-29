@@ -24,14 +24,13 @@ matrix:
 before_install:
   - npm config set registry http://registry.npmjs.org/
   - npm config set spin false
-  - npm install -g bower
   - git config user.name 'Leooo'
-  - bower --version
   - npm install phantomjs-prebuilt@2
   - phantomjs --version
 
 install:
   - npm install
+  - bower install
 
 script:
   - ember test
