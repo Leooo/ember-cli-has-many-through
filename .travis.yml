@@ -24,6 +24,7 @@ matrix:
 before_install:
   - npm config set registry http://registry.npmjs.org/
   - npm config set spin false
+  - npm install -g bower
   - git config user.name 'Leooo'
   - npm install phantomjs-prebuilt@2
   - phantomjs --version
