@@ -1,6 +1,8 @@
 # Ember-cli-has-many-through
 
-This README outlines the details of collaborating on this Ember addon.
+Given an Ember-Data `parent` model with a `hasMany` `children` relationship that itself has a `hasMany` `childrenofchild` relationship,
+then you can use the `hasManyThrough` computed property provided by this add-on to concatenate all the `childrenofchild` of `child` models
+into a single `childrenofchild` property on the `parent` model.
 
 ## Installation
 
