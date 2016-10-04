@@ -194,3 +194,40 @@ test('hasManyThrough on hasMany of several hasMany', function (assert) {
     });
   });
 });
+
+test('hasManyThroughNonOject on hasMany of several hasMany', function (assert) {
+  let store = this.store(),
+    child1, child2, parent;
+  parent = this.subject();
+  Ember.run(() => {
+    child1 = store.createRecord('child');
+    child2 = store.createRecord('child');
+    let arrayOfChildOfChild = ['childOfChild1', 'childOfChild2', 'childOfChild3'];
+    parent.get('children').then((children) => {
+      child1.get('simpleArray').pushObjects(['childOfChild1', 'childOfChild2']);
+      child2.get('simpleArray').pushObjects(['childOfChild2', 'childOfChild3']);
+      children.pushObjects([child1, child2]);
+      return parent.get('simpleArray');
+    }).then((res) => {
+      assert.deepEqual(
+        res,
+        arrayOfChildOfChild,
+        'the hasManyThroughNonObject property forwards the hasMany of two hasMany children'
+      );
+      assert.equal(
+        res.get('length'),
+        3,
+        'the hasManyThroughNonObject property removes duplicates from the final array'
+      );
+    }).then(() => {
+        child1.get('simpleArray').removeObject('childOfChild1');
+        return parent.get('simpleArray');
+    }).then(() => {
+      assert.deepEqual(
+        parent.get('simpleArray.content'),
+        ['childOfChild2', 'childOfChild3'],
+        'the hasManyThrough property removes destroyed records'
+      )
+    });
+  });
+});
