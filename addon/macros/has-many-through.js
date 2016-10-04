@@ -17,11 +17,17 @@ export default function (...args) {
   // deleted without the observer `notify${childKey.classify()}OnDelete`
   return computed(`${childKey}.@each`, function (key) {
     childOfChildKey = childOfChildKey || key;
+    let self = this,
+    observerFunction = function () {
+      if (!self.isDestroyed) {
+        self.notifyPropertyChange(key);
+      }
+    };
+
     return DS.PromiseArray.create({
       promise: this.get(childKey).then((children) => {
         let all = [],
           res = [];
-
         children.forEach((child) => {
           // takes into account the case where the hasMany on the child
           // is not a promise (MF.Array for example)
@@ -31,22 +37,16 @@ export default function (...args) {
 
           all.pushObject(
             prom.then((childrenOfChild) => {
-              childrenOfChild.forEach((item) => {
-                let observerName = `notify${childKey.classify()}OnDelete`,
-                  self = this;
-
-                // make sure property is updated when a childofchild is deleted
-                if (item.isDeleted && !item.get(observerName)) {
-                  item.addObserver('isDeleted', function () {
-                    self.notifyPropertyChange(key);
-                  });
-                }
-              }, this);
               res.pushObjects(childrenOfChild.toArray());
             })
           );
         });
         return RSVP.all(all).then(() => {
+          children.forEach((child) => {
+            // add observer for when a childOfChild is added / destroyed
+            child.removeObserver(`${childOfChildKey}.@each.isDeleted`, self, observerFunction);
+            child.addObserver(`${childOfChildKey}.@each.isDeleted`, self, observerFunction);
+          });
           // remove duplicates
           return res.filter(function (item, pos) {
             return res.indexOf(item) === pos
