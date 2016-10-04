@@ -44,8 +44,8 @@ export default function (...args) {
         return RSVP.all(all).then(() => {
           children.forEach((child) => {
             // add observer for when a childOfChild is added / destroyed
-            child.removeObserver(`${childOfChildKey}.@each.isDeleted`, self, observerFunction);
-            child.addObserver(`${childOfChildKey}.@each.isDeleted`, self, observerFunction);
+            child.removeObserver(`${childOfChildKey}.length`, self, observerFunction);
+            child.addObserver(`${childOfChildKey}.length`, self, observerFunction);
           });
           // remove duplicates
           return res.filter(function (item, pos) {
